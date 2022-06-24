@@ -7,10 +7,11 @@ from werkzeug.utils import secure_filename
 import numpy as np
 from keras.preprocessing import image
 from keras.models import load_model
+from keras.utils.image_utils import img_to_array
 from PIL import Image
 import cv2
 
-model_s = load_model("app/static/model/mnist_Adam2_20210516.h5")
+model_s = load_model("app/static/model/ERIKR2.h5")
 path = ""; secure_files = []
 	
 def allowed_file(filename):
@@ -67,7 +68,7 @@ def evaluate_img(path):
         char_path = os.path.join(path[:-4], str(num_img)+".png")
         cv2.imwrite(char_path,bg)
         img_path = char_path.split("app")[1]
-        x = image.img_to_array(bg)    
+        x = img_to_array(bg)  
         #print ("Ave - 128: ", np.average(x)-128)
         if np.average(x)-128 > 0:
             x = 255 - x
@@ -95,10 +96,13 @@ def upload_file():
             file.save(path)
             results = evaluate_img(path)
             print(results)
+            full=""
+            for i in results:
+                full+=str(i[1])
             form = ResultForm()
             return render_template("result2.html", title="Result", form = form, 
                 path = os.path.join('static\\img\\upload\\', new_filename), 
-                results = results)
+                results = results,fullchars=full)
         else:
             msg = "Wrong file format: " + file.filename
             flash(msg, "warning") 
